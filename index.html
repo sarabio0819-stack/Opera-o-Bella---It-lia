@@ -49,7 +49,6 @@
             overflow: hidden;
         }
 
-        /* Camada SVG de cordões vermelhos no fundo */
         .global-strings {
             position: absolute;
             inset: 0;
@@ -71,7 +70,6 @@
             opacity: 0.65;
         }
 
-        /* Elementos decorativos do quadro (mapas, blueprint, impressão digital) */
         .bg-artifact {
             position: absolute;
             background: #ded7c8;
@@ -82,7 +80,6 @@
             z-index: 1;
         }
 
-        /* Mapa superior esquerdo */
         .artifact-map {
             top: -20px;
             left: 26%;
@@ -97,7 +94,6 @@
             border: 3px solid #bfb6a4;
         }
 
-        /* Fachada / Planta inferior esquerda */
         .artifact-building {
             bottom: -15px;
             left: 3%;
@@ -111,7 +107,6 @@
             opacity: 0.24;
         }
 
-        /* Ficha com impressão digital no centro-baixo */
         .artifact-fingerprint {
             bottom: 35px;
             left: 34%;
@@ -133,7 +128,6 @@
             opacity: 0.7;
         }
 
-        /* Foto escura inferior */
         .artifact-gang {
             bottom: -25px;
             left: 48%;
@@ -145,7 +139,6 @@
             opacity: 0.35;
         }
 
-        /* Alfinetes 3D */
         .pin-3d {
             position: absolute;
             width: 15px;
@@ -168,7 +161,7 @@
         }
 
         /* ========================================================
-           BARRA SUPERIOR (LOGO LA CASA DE PAPEL + CONFIDENCIAL)
+           BARRA SUPERIOR (LOGO + ÁUDIO + CONFIDENCIAL)
            ======================================================== */
         header.top-header {
             position: relative;
@@ -180,6 +173,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
         }
 
         .lcdp-logo {
@@ -201,6 +195,33 @@
             padding: 1px 6px;
             font-size: 1.35rem;
             line-height: 1.1;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .audio-btn {
+            background: rgba(15, 15, 18, 0.88);
+            border: 1px solid #3a3a45;
+            color: #e4e4ec;
+            padding: 6px 12px;
+            border-radius: 2px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.78rem;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .audio-btn:hover {
+            border-color: var(--lcdp-red-bright);
+            color: #ffffff;
         }
 
         .confidential-pill {
@@ -263,7 +284,7 @@
         }
 
         /* ========================================================
-           TELA 1: LAYOUT IDÊNTICO À REFERÊNCIA (3 COLUNAS)
+           TELA 1: LAYOUT QUADRO DE INVESTIGAÇÃO (3 COLUNAS)
            ======================================================== */
         .hero-grid {
             display: grid;
@@ -273,7 +294,6 @@
             width: 100%;
         }
 
-        /* Coluna Esquerda */
         .hero-left {
             padding-left: 12px;
         }
@@ -350,7 +370,6 @@
             transform: scale(0.98);
         }
 
-        /* Coluna Central: Polaroid Grande Inclinada */
         .hero-center {
             display: flex;
             justify-content: center;
@@ -401,7 +420,6 @@
             color: #b8001f;
         }
 
-        /* Coluna Direita: Notas de Papel Rasgado */
         .hero-right {
             display: flex;
             flex-direction: column;
@@ -639,12 +657,12 @@
             font-weight: bold;
         }
 
-        /* ========================================================
-           RESPONSIVIDADE (CELULAR E TABLET)
-           ======================================================== */
         @media (max-width: 980px) {
             header.top-header {
                 padding: 18px 20px;
+            }
+            .lcdp-logo {
+                font-size: 1.25rem;
             }
             main.stage {
                 padding: 10px 20px 40px 20px;
@@ -680,6 +698,9 @@
 </head>
 <body>
 
+    <!-- ELEMENTO DE ÁUDIO (CERTIFIQUE-SE DE QUE O FICHEIRO NO GITHUB SE CHAMA musica.mp3) -->
+    <audio id="bg-music" src="musica.mp3" loop preload="auto"></audio>
+
     <!-- FUNDO DO QUADRO DE INVESTIGAÇÃO COM CORDÕES -->
     <div class="board-backdrop">
         <div class="artifact-map"></div>
@@ -687,7 +708,6 @@
         <div class="artifact-fingerprint"><div class="fingerprint-ring"></div></div>
         <div class="artifact-gang"></div>
 
-        <!-- Cordões vermelhos conectando todo o quadro -->
         <svg class="global-strings" viewBox="0 0 1440 900" preserveAspectRatio="none">
             <line x1="180" y1="160" x2="430" y2="95" class="rope" />
             <line x1="430" y1="95" x2="775" y2="175" class="rope" />
@@ -708,8 +728,11 @@
         <div class="lcdp-logo">
             LA CASA <span class="de-box">DE</span> PAPEL
         </div>
-        <div class="confidential-pill">
-            <span class="rec-dot"></span> CONFIDENCIAL
+        <div class="header-controls">
+            <button class="audio-btn" id="audio-toggle" onclick="toggleAudio()">🔊 SOM</button>
+            <div class="confidential-pill">
+                <span class="rec-dot"></span> CONFIDENCIAL
+            </div>
         </div>
     </header>
 
@@ -836,6 +859,41 @@
         ];
         // =====================================================================
 
+        // Controle de Áudio
+        const bgMusic = document.getElementById('bg-music');
+        const audioToggleBtn = document.getElementById('audio-toggle');
+        bgMusic.volume = 0.45; // Volume ambiente (45%) para não assustar
+        let musicStarted = false;
+
+        function playBackgroundMusic() {
+            if (!musicStarted) {
+                bgMusic.play().then(() => {
+                    musicStarted = true;
+                    audioToggleBtn.innerText = "🔊 SOM ON";
+                }).catch(() => {
+                    // Navegador aguardando interação do usuário
+                    audioToggleBtn.innerText = "🔇 ATIVAR SOM";
+                });
+            }
+        }
+
+        function toggleAudio() {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                musicStarted = true;
+                audioToggleBtn.innerText = "🔊 SOM ON";
+            } else {
+                bgMusic.pause();
+                audioToggleBtn.innerText = "🔇 MUDO";
+            }
+        }
+
+        // Tenta tocar ao carregar e garante o início no primeiro clique/toque na tela
+        window.addEventListener('load', playBackgroundMusic);
+        document.addEventListener('click', playBackgroundMusic, { once: true });
+        document.addEventListener('touchstart', playBackgroundMusic, { once: true });
+
+        // Lógica dos Cadeados
         let currentLockIndex = 0;
 
         function normalizeText(text) {
@@ -847,6 +905,7 @@
         }
 
         function startOperation() {
+            playBackgroundMusic();
             document.getElementById('screen-intro').classList.remove('active');
             document.getElementById('screen-locks').classList.add('active');
             loadLock(0);
