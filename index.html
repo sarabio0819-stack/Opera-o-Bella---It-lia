@@ -493,6 +493,12 @@
             border-radius: 3px;
             padding: 36px 30px;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.92);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .operation-card.card-unlocked-flash {
+            border-top-color: var(--success-green);
+            box-shadow: 0 25px 65px rgba(46, 196, 182, 0.35);
         }
 
         .badge {
@@ -535,18 +541,59 @@
         .lock-pill.unlocked {
             border-color: var(--success-green);
             color: var(--success-green);
-            background: rgba(46, 196, 182, 0.1);
+            background: rgba(46, 196, 182, 0.12);
         }
 
+        /* ========================================================
+           CADEADO MECÂNICO ANIMADO (SVG)
+           ======================================================== */
         .lock-visual {
             text-align: center;
-            margin: 12px 0 20px 0;
+            margin: 10px 0 22px 0;
         }
 
-        .lock-icon {
-            font-size: 3rem;
-            display: inline-block;
-            margin-bottom: 8px;
+        .padlock-svg {
+            width: 84px;
+            height: 96px;
+            margin: 0 auto 10px auto;
+            display: block;
+            overflow: visible;
+        }
+
+        .padlock-shackle {
+            fill: none;
+            stroke: #c4c4ce;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.3s ease;
+            transform-origin: 26px 46px;
+        }
+
+        .padlock-body {
+            fill: #1f1f26;
+            stroke: var(--lcdp-red-bright);
+            stroke-width: 3;
+            transition: stroke 0.3s ease, fill 0.3s ease;
+        }
+
+        .padlock-keyhole {
+            fill: var(--lcdp-red-bright);
+            transition: fill 0.3s ease;
+        }
+
+        /* Estado Aberto do Cadeado */
+        .padlock-svg.is-open .padlock-shackle {
+            transform: translateY(-14px) rotate(-14deg);
+            stroke: var(--success-green);
+        }
+
+        .padlock-svg.is-open .padlock-body {
+            stroke: var(--success-green);
+            fill: #132624;
+        }
+
+        .padlock-svg.is-open .padlock-keyhole {
+            fill: var(--success-green);
         }
 
         .lock-visual h2 {
@@ -554,7 +601,14 @@
             text-transform: uppercase;
             letter-spacing: 1.5px;
             font-size: 1.5rem;
+            transition: color 0.3s;
         }
+
+        .lock-visual h2.unlocked-text {
+            color: var(--success-green);
+        }
+
+        /* ======================================================== */
 
         .hint-box {
             background: rgba(255, 255, 255, 0.03);
@@ -609,8 +663,15 @@
             transition: background 0.2s;
         }
 
-        .btn-full:hover {
+        .btn-full:hover:not(:disabled) {
             background: #b80322;
+        }
+
+        .btn-full:disabled {
+            background: var(--success-green);
+            color: #09090b;
+            font-weight: 700;
+            cursor: default;
         }
 
         .shake {
@@ -698,7 +759,7 @@
 </head>
 <body>
 
-    <!-- ELEMENTO DE ÁUDIO -->
+    <!-- ELEMENTO DE ÁUDIO DE FUNDO -->
     <audio id="bg-music" src="musica.mp3" loop preload="auto"></audio>
 
     <!-- FUNDO DO QUADRO DE INVESTIGAÇÃO COM CORDÕES -->
@@ -803,7 +864,16 @@
                 </div>
 
                 <div class="lock-visual">
-                    <div class="lock-icon">🔐</div>
+                    <!-- Cadeado SVG que abre fisicamente quando destravado -->
+                    <svg class="padlock-svg" id="padlock-svg" viewBox="0 0 80 95">
+                        <!-- Haste metálica superior -->
+                        <path class="padlock-shackle" d="M24 44 V27 A16 16 0 0 1 56 27 V44" />
+                        <!-- Corpo do cadeado -->
+                        <rect class="padlock-body" x="14" y="42" width="52" height="44" rx="6" />
+                        <!-- Buraco da fechadura -->
+                        <circle class="padlock-keyhole" cx="40" cy="60" r="5" />
+                        <path class="padlock-keyhole" d="M37.5 62 L42.5 62 L44 73 L36 73 Z" />
+                    </svg>
                     <h2 id="lock-title">Cadeado 01 de 03</h2>
                 </div>
 
@@ -814,7 +884,7 @@
                 <input type="text" id="code-input" placeholder="DIGITE A FRASE-CHAVE" autocomplete="off">
                 <div class="error-msg" id="error-msg"></div>
 
-                <button class="btn-full" onclick="checkCode()">Desbloquear Cadeado</button>
+                <button class="btn-full" id="unlock-btn" onclick="checkCode()">Desbloquear Cadeado</button>
             </div>
         </section>
 
@@ -859,10 +929,10 @@
         ];
         // =====================================================================
 
-        // Controle de Áudio
+        // Controle de Áudio de Fundo
         const bgMusic = document.getElementById('bg-music');
         const audioToggleBtn = document.getElementById('audio-toggle');
-        bgMusic.volume = 0.45;
+        bgMusic.volume = 0.40;
         let musicStarted = false;
 
         function playBackgroundMusic() {
@@ -891,8 +961,98 @@
         document.addEventListener('click', playBackgroundMusic, { once: true });
         document.addEventListener('touchstart', playBackgroundMusic, { once: true });
 
-        // Lógica dos Cadeados
+        // =====================================================================
+        // EFEITOS SONOROS DO CADEADO (WEB AUDIO API - SEM ARQUIVOS EXTRAS)
+        // =====================================================================
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContextClass();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        // Som metálico de tranca destravando + confirmação eletrônica
+        function playUnlockSound() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+
+                // 1. Primeiro estalo metálico (pino da tranca recuando)
+                const clickOsc1 = ctx.createOscillator();
+                const clickGain1 = ctx.createGain();
+                clickOsc1.type = 'triangle';
+                clickOsc1.frequency.setValueAtTime(520, now);
+                clickOsc1.frequency.exponentialRampToValueAtTime(140, now + 0.06);
+                clickGain1.gain.setValueAtTime(0.45, now);
+                clickGain1.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+                clickOsc1.connect(clickGain1);
+                clickGain1.connect(ctx.destination);
+                clickOsc1.start(now);
+                clickOsc1.stop(now + 0.065);
+
+                // 2. Segundo estalo mais pesado (haste do cadeado saltando)
+                const clickOsc2 = ctx.createOscillator();
+                const clickGain2 = ctx.createGain();
+                clickOsc2.type = 'sawtooth';
+                clickOsc2.frequency.setValueAtTime(880, now + 0.09);
+                clickOsc2.frequency.exponentialRampToValueAtTime(210, now + 0.18);
+                clickGain2.gain.setValueAtTime(0.4, now + 0.09);
+                clickGain2.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+                clickOsc2.connect(clickGain2);
+                clickGain2.connect(ctx.destination);
+                clickOsc2.start(now + 0.09);
+                clickOsc2.stop(now + 0.19);
+
+                // 3. Tom duplo positivo de "Acesso Liberado"
+                const chime1 = ctx.createOscillator();
+                const chime2 = ctx.createOscillator();
+                const chimeGain = ctx.createGain();
+                chime1.type = 'sine';
+                chime2.type = 'sine';
+                chime1.frequency.setValueAtTime(659.25, now + 0.22); // Mi5
+                chime2.frequency.setValueAtTime(987.77, now + 0.34); // Si5
+                chimeGain.gain.setValueAtTime(0.25, now + 0.22);
+                chimeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+                chime1.connect(chimeGain);
+                chime2.connect(chimeGain);
+                chimeGain.connect(ctx.destination);
+                chime1.start(now + 0.22);
+                chime1.stop(now + 0.34);
+                chime2.start(now + 0.34);
+                chime2.stop(now + 0.66);
+            } catch (e) {}
+        }
+
+        // Som grave de tranca bloqueada (quando erra o código)
+        function playErrorSound() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.linearRampToValueAtTime(95, now + 0.25);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.26);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.27);
+            } catch (e) {}
+        }
+
+        // =====================================================================
+        // LÓGICA DOS CADEADOS COM ANIMAÇÃO DE ABERTURA
+        // =====================================================================
         let currentLockIndex = 0;
+        let isAnimatingUnlock = false;
 
         function normalizeText(text) {
             return text
@@ -905,6 +1065,7 @@
 
         function startOperation() {
             playBackgroundMusic();
+            getAudioContext();
             document.getElementById('screen-intro').classList.remove('active');
             document.getElementById('screen-locks').classList.add('active');
             loadLock(0);
@@ -912,14 +1073,32 @@
 
         function loadLock(index) {
             const lock = LOCKS_CONFIG[index];
-            document.getElementById('lock-title').innerText = lock.title;
+            const padlockSvg = document.getElementById('padlock-svg');
+            const titleEl = document.getElementById('lock-title');
+            const cardEl = document.getElementById('lock-card');
+            const btnEl = document.getElementById('unlock-btn');
+            const inputEl = document.getElementById('code-input');
+
+            // Reseta o visual do cadeado para fechado
+            padlockSvg.classList.remove('is-open');
+            cardEl.classList.remove('card-unlocked-flash');
+            titleEl.classList.remove('unlocked-text');
+            titleEl.innerText = lock.title;
+
             document.getElementById('lock-hint').innerText = lock.hint;
-            document.getElementById('code-input').value = '';
+            inputEl.value = '';
+            inputEl.disabled = false;
             document.getElementById('error-msg').innerText = '';
-            document.getElementById('code-input').focus();
+            
+            btnEl.disabled = false;
+            btnEl.innerText = 'Desbloquear Cadeado';
+            isAnimatingUnlock = false;
+            inputEl.focus();
         }
 
         function checkCode() {
+            if (isAnimatingUnlock) return;
+
             const inputEl = document.getElementById('code-input');
             const errorEl = document.getElementById('error-msg');
             const cardEl = document.getElementById('lock-card');
@@ -929,28 +1108,55 @@
 
             if (!userAttempt) {
                 errorEl.innerText = "ACESSO NEGADO: CAMPO VAZIO.";
+                playErrorSound();
                 triggerShake(cardEl);
                 return;
             }
 
             if (userAttempt === expectedPassword) {
+                isAnimatingUnlock = true;
+
+                // Toca o som metálico de abertura do cadeado
+                playUnlockSound();
+
+                // Anima o cadeado abrindo na tela
+                const padlockSvg = document.getElementById('padlock-svg');
+                const titleEl = document.getElementById('lock-title');
+                const btnEl = document.getElementById('unlock-btn');
+
+                padlockSvg.classList.add('is-open');
+                cardEl.classList.add('card-unlocked-flash');
+                titleEl.classList.add('unlocked-text');
+                titleEl.innerText = `CADEADO 0${currentLockIndex + 1} DESBLOQUEADO!`;
+                errorEl.innerText = '';
+
+                inputEl.disabled = true;
+                btnEl.disabled = true;
+                btnEl.innerText = '🔓 TRAVA LIBERADA';
+
+                // Atualiza a pílula superior
                 const currentPill = document.getElementById(`pill-${currentLockIndex}`);
                 currentPill.classList.remove('current');
                 currentPill.classList.add('unlocked');
                 currentPill.innerText = `🔓 CADEADO 0${currentLockIndex + 1}`;
 
-                currentLockIndex++;
+                // Aguarda 1,1 segundo para ela ver o cadeado aberto antes de avançar
+                setTimeout(() => {
+                    currentLockIndex++;
 
-                if (currentLockIndex < LOCKS_CONFIG.length) {
-                    const nextPill = document.getElementById(`pill-${currentLockIndex}`);
-                    nextPill.classList.add('current');
-                    loadLock(currentLockIndex);
-                } else {
-                    document.getElementById('screen-locks').classList.remove('active');
-                    document.getElementById('screen-final').classList.add('active');
-                }
+                    if (currentLockIndex < LOCKS_CONFIG.length) {
+                        const nextPill = document.getElementById(`pill-${currentLockIndex}`);
+                        nextPill.classList.add('current');
+                        loadLock(currentLockIndex);
+                    } else {
+                        document.getElementById('screen-locks').classList.remove('active');
+                        document.getElementById('screen-final').classList.add('active');
+                    }
+                }, 1150);
+
             } else {
                 errorEl.innerText = "CÓDIGO INCORRETO. TENTE NOVAMENTE.";
+                playErrorSound();
                 inputEl.value = '';
                 triggerShake(cardEl);
             }
