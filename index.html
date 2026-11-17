@@ -573,9 +573,9 @@
             color: #fff;
             padding: 15px;
             font-family: 'Courier Prime', monospace;
-            font-size: 1.15rem;
+            font-size: 1.05rem;
             text-align: center;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             text-transform: uppercase;
             outline: none;
             margin-bottom: 12px;
@@ -698,7 +698,7 @@
 </head>
 <body>
 
-    <!-- ELEMENTO DE ÁUDIO (CERTIFIQUE-SE DE QUE O FICHEIRO NO GITHUB SE CHAMA musica.mp3) -->
+    <!-- ELEMENTO DE ÁUDIO -->
     <audio id="bg-music" src="musica.mp3" loop preload="auto"></audio>
 
     <!-- FUNDO DO QUADRO DE INVESTIGAÇÃO COM CORDÕES -->
@@ -808,10 +808,10 @@
                 </div>
 
                 <div class="hint-box" id="lock-hint">
-                    Dica 01: Digite a primeira palavra-chave definida para a operação.
+                    Camada 01: Insira a frase-chave da operação para desbloquear.
                 </div>
 
-                <input type="text" id="code-input" placeholder="DIGITE A PALAVRA-CHAVE" autocomplete="off">
+                <input type="text" id="code-input" placeholder="DIGITE A FRASE-CHAVE" autocomplete="off">
                 <div class="error-msg" id="error-msg"></div>
 
                 <button class="btn-full" onclick="checkCode()">Desbloquear Cadeado</button>
@@ -838,23 +838,23 @@
 
     <script>
         // =====================================================================
-        // CONFIGURAÇÃO DAS 3 SENHAS E PISTAS (EDITE AQUI QUANDO DEFINIR)
+        // CONFIGURAÇÃO DAS 3 SENHAS E PISTAS
         // =====================================================================
         const LOCKS_CONFIG = [
             {
                 title: "Cadeado 01 de 03",
-                password: "SENHA1",
-                hint: "Dica 01: Digite a primeira palavra-chave definida para a operação."
+                password: "Eu amo minha equipe",
+                hint: "Camada 01 de 03: Insira a frase-chave da operação para liberar o primeiro cadeado."
             },
             {
                 title: "Cadeado 02 de 03",
-                password: "SENHA2",
-                hint: "Dica 02: Digite a segunda palavra-chave para avançar."
+                password: "Eu amo minha equipe",
+                hint: "Camada 02 de 03: Confirme a frase-chave para quebrar a segunda trava."
             },
             {
                 title: "Cadeado 03 de 03",
-                password: "SENHA3",
-                hint: "Dica 03: Última camada de proteção. Insira a palavra final."
+                password: "Eu amo minha equipe",
+                hint: "Camada 03 de 03: Última trava de segurança. Insira a frase-chave final."
             }
         ];
         // =====================================================================
@@ -862,7 +862,7 @@
         // Controle de Áudio
         const bgMusic = document.getElementById('bg-music');
         const audioToggleBtn = document.getElementById('audio-toggle');
-        bgMusic.volume = 0.45; // Volume ambiente (45%) para não assustar
+        bgMusic.volume = 0.45;
         let musicStarted = false;
 
         function playBackgroundMusic() {
@@ -871,7 +871,6 @@
                     musicStarted = true;
                     audioToggleBtn.innerText = "🔊 SOM ON";
                 }).catch(() => {
-                    // Navegador aguardando interação do usuário
                     audioToggleBtn.innerText = "🔇 ATIVAR SOM";
                 });
             }
@@ -888,7 +887,6 @@
             }
         }
 
-        // Tenta tocar ao carregar e garante o início no primeiro clique/toque na tela
         window.addEventListener('load', playBackgroundMusic);
         document.addEventListener('click', playBackgroundMusic, { once: true });
         document.addEventListener('touchstart', playBackgroundMusic, { once: true });
@@ -899,6 +897,7 @@
         function normalizeText(text) {
             return text
                 .trim()
+                .replace(/\s+/g, " ")
                 .toUpperCase()
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "");
