@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPERAÇÃO BELLA | Confidencial</title>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Oswald:wght@500;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <title>LA CASA DE PAPEL | Operação Bella</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Courier+Prime:wght@400;700&family=Oswald:wght@600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #0a0a0c;
-            --bg-panel: #141418;
+            --bg-dark: #09090b;
             --lcdp-red: #d90429;
-            --lcdp-red-dark: #8d021b;
-            --text-main: #f1f1f1;
-            --text-muted: #8a8a93;
+            --lcdp-red-bright: #e60026;
+            --text-main: #f4f4f6;
+            --text-muted: #b8b8c2;
             --success-green: #2ec4b6;
         }
 
@@ -24,98 +23,234 @@
 
         body {
             background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(217, 4, 41, 0.15) 0%, transparent 60%),
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 100% 100%, 30px 30px, 30px 30px;
             color: var(--text-main);
             font-family: 'Courier Prime', monospace;
             min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
+            position: relative;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            overflow-x: hidden;
         }
 
-        .top-bar {
+        /* ========================================================
+           FUNDO DO QUADRO DE INVESTIGAÇÃO (TEXTURA + MAPAS + CORDÕES)
+           ======================================================== */
+        .board-backdrop {
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
+            z-index: 0;
+            background-color: #0c0b0b;
+            background-image: 
+                radial-gradient(circle at 50% 45%, rgba(38, 28, 26, 0.45) 0%, rgba(7, 7, 9, 0.96) 85%),
+                repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 4px),
+                repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 4px);
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        /* Camada SVG de cordões vermelhos no fundo */
+        .global-strings {
+            position: absolute;
+            inset: 0;
             width: 100%;
-            background: rgba(10, 10, 12, 0.9);
-            border-bottom: 1px solid #26262c;
-            padding: 10px 20px;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .rope {
+            stroke: #c90020;
+            stroke-width: 2.3;
+            filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.9));
+            opacity: 0.88;
+        }
+
+        .rope-thin {
+            stroke: #8f0017;
+            stroke-width: 1.4;
+            opacity: 0.65;
+        }
+
+        /* Elementos decorativos do quadro (mapas, blueprint, impressão digital) */
+        .bg-artifact {
+            position: absolute;
+            background: #ded7c8;
+            color: #1c1c1c;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.85);
+            opacity: 0.28;
+            filter: grayscale(40%) contrast(1.15);
+            z-index: 1;
+        }
+
+        /* Mapa superior esquerdo */
+        .artifact-map {
+            top: -20px;
+            left: 26%;
+            width: 260px;
+            height: 220px;
+            transform: rotate(-8deg);
+            background-image: 
+                radial-gradient(circle at 62% 58%, transparent 28px, rgba(217, 4, 41, 0.8) 30px, transparent 33px),
+                linear-gradient(35deg, transparent 48%, #444 49%, #444 51%, transparent 52%),
+                linear-gradient(-40deg, transparent 35%, #555 36%, #555 37%, transparent 38%),
+                repeating-linear-gradient(90deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 18px);
+            border: 3px solid #bfb6a4;
+        }
+
+        /* Fachada / Planta inferior esquerda */
+        .artifact-building {
+            bottom: -15px;
+            left: 3%;
+            width: 290px;
+            height: 165px;
+            transform: rotate(3deg);
+            background: 
+                repeating-linear-gradient(90deg, #2b2b2b 0px, #2b2b2b 12px, #cfcabd 12px, #cfcabd 26px),
+                linear-gradient(180deg, #bdb6a8 0%, #8f887b 100%);
+            border: 4px solid #d6cfc0;
+            opacity: 0.24;
+        }
+
+        /* Ficha com impressão digital no centro-baixo */
+        .artifact-fingerprint {
+            bottom: 35px;
+            left: 34%;
+            width: 140px;
+            height: 150px;
+            transform: rotate(-11deg);
+            background: #e6dfd1;
+            opacity: 0.26;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fingerprint-ring {
+            width: 78px;
+            height: 105px;
+            border-radius: 50%;
+            background: repeating-radial-gradient(circle at 50% 50%, #222 0px, #222 2px, transparent 2px, transparent 6px);
+            opacity: 0.7;
+        }
+
+        /* Foto escura inferior */
+        .artifact-gang {
+            bottom: -25px;
+            left: 48%;
+            width: 300px;
+            height: 150px;
+            transform: rotate(-3deg);
+            background: linear-gradient(180deg, #1b1212 0%, #3d0c11 100%);
+            border: 6px solid #dcd5c7;
+            opacity: 0.35;
+        }
+
+        /* Alfinetes 3D */
+        .pin-3d {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ff6b81, #d90429 58%, #59000f 100%);
+            box-shadow: 0 4px 7px rgba(0,0,0,0.95);
+            z-index: 6;
+        }
+
+        .pin-3d::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        /* ========================================================
+           BARRA SUPERIOR (LOGO LA CASA DE PAPEL + CONFIDENCIAL)
+           ======================================================== */
+        header.top-header {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 24px 36px 10px 36px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            z-index: 10;
-            letter-spacing: 1px;
         }
 
-        .status-dot {
-            display: inline-block;
+        .lcdp-logo {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 1.55rem;
+            letter-spacing: 1.5px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-transform: uppercase;
+            user-select: none;
+        }
+
+        .lcdp-logo span.de-box {
+            background-color: var(--lcdp-red-bright);
+            color: #ffffff;
+            padding: 1px 6px;
+            font-size: 1.35rem;
+            line-height: 1.1;
+        }
+
+        .confidential-pill {
+            background: rgba(15, 15, 18, 0.88);
+            border: 1px solid #2e2e36;
+            padding: 6px 14px;
+            border-radius: 2px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.78rem;
+            letter-spacing: 2px;
+            color: var(--lcdp-red-bright);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rec-dot {
             width: 8px;
             height: 8px;
-            background-color: var(--lcdp-red);
             border-radius: 50%;
-            margin-right: 6px;
-            animation: blink 1.2s infinite;
+            background-color: var(--lcdp-red-bright);
+            box-shadow: 0 0 8px var(--lcdp-red-bright);
+            animation: pulseDot 1.3s infinite;
         }
 
-        @keyframes blink {
+        @keyframes pulseDot {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.2; }
+            50% { opacity: 0.25; }
         }
 
-        .container {
-            width: 100%;
-            max-width: 560px;
-            background: var(--bg-panel);
-            border: 1px solid #2a2a32;
-            border-top: 4px solid var(--lcdp-red);
-            border-radius: 4px;
-            padding: 35px 28px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+        /* ========================================================
+           ÁREA PRINCIPAL / TELAS
+           ======================================================== */
+        main.stage {
             position: relative;
-            margin-top: 30px;
-        }
-
-        .badge {
-            display: inline-block;
-            background: var(--lcdp-red);
-            color: #fff;
-            font-family: 'Oswald', sans-serif;
-            font-size: 0.75rem;
-            letter-spacing: 2px;
-            padding: 3px 10px;
-            margin-bottom: 18px;
-            text-transform: uppercase;
-        }
-
-        h1, h2 {
-            font-family: 'Oswald', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            line-height: 1.2;
-        }
-
-        h1 {
-            font-size: 1.85rem;
-            margin-bottom: 15px;
-        }
-
-        .highlight-red {
-            color: var(--lcdp-red);
+            z-index: 5;
+            flex: 1;
+            width: 100%;
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 15px 36px 35px 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .screen {
             display: none;
-            animation: fadeIn 0.5s ease forwards;
+            width: 100%;
+            animation: fadeIn 0.55s ease forwards;
         }
 
         .screen.active {
@@ -123,269 +258,260 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         /* ========================================================
-           QUADRO DE INVESTIGAÇÃO COM CORDÕES VERMELHOS
+           TELA 1: LAYOUT IDÊNTICO À REFERÊNCIA (3 COLUNAS)
            ======================================================== */
-        .evidence-board {
-            position: relative;
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.95fr 0.55fr;
+            align-items: center;
+            gap: 28px;
             width: 100%;
-            min-height: 410px;
-            margin: 22px 0 26px 0;
-            background-color: #161311;
-            background-image: 
-                radial-gradient(circle at 50% 50%, rgba(45, 35, 28, 0.45) 0%, rgba(10, 9, 8, 0.95) 100%),
-                radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
-            background-size: 100% 100%, 14px 14px;
-            border: 4px solid #2b231d;
-            box-shadow: inset 0 0 40px rgba(0,0,0,0.9), 0 10px 25px rgba(0,0,0,0.6);
-            border-radius: 3px;
-            display: flex;
+        }
+
+        /* Coluna Esquerda */
+        .hero-left {
+            padding-left: 12px;
+        }
+
+        .classified-stamp {
+            display: inline-block;
+            background: rgba(140, 2, 24, 0.28);
+            border: 1.5px solid #b80422;
+            color: #ff2a4b;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            padding: 4px 12px;
+            margin-bottom: 20px;
+            transform: rotate(-2.5deg);
+            text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .hero-title {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: clamp(2.5rem, 4.6vw, 4.35rem);
+            line-height: 1.02;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #f5f5f7;
+            margin-bottom: 24px;
+            text-shadow: 0 6px 24px rgba(0, 0, 0, 0.85);
+        }
+
+        .hero-title .red {
+            color: var(--lcdp-red-bright);
+        }
+
+        .hero-subtitle {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.02rem;
+            line-height: 1.65;
+            color: #d6d6de;
+            max-width: 470px;
+            margin-bottom: 32px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .btn-start {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 32px 15px;
-            overflow: hidden;
+            gap: 14px;
+            background: linear-gradient(180deg, #e60026 0%, #b5001d 100%);
+            color: #ffffff;
+            border: 1px solid #ff3355;
+            padding: 16px 36px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 2px;
+            box-shadow: 0 10px 28px rgba(217, 4, 41, 0.45);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
         }
 
-        /* Camada SVG para os cordões vermelhos */
-        .red-strings-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 3;
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 34px rgba(230, 0, 38, 0.65);
+            filter: brightness(1.08);
         }
 
-        .string-line {
-            stroke: #e60026;
-            stroke-width: 2.2;
-            filter: drop-shadow(0px 3px 3px rgba(0, 0, 0, 0.85));
-            opacity: 0.92;
+        .btn-start:active {
+            transform: scale(0.98);
         }
 
-        .string-line-thin {
-            stroke: #b8001f;
-            stroke-width: 1.4;
-            stroke-dasharray: 4 2;
-            opacity: 0.7;
-        }
-
-        /* Notas e recortes secundários no quadro */
-        .clue-note {
-            position: absolute;
-            background: #e8e2d5;
-            color: #1a1a1a;
-            font-family: 'Courier Prime', monospace;
-            font-size: 0.62rem;
-            font-weight: bold;
-            padding: 7px 9px;
-            box-shadow: 2px 4px 10px rgba(0,0,0,0.75);
-            z-index: 2;
-            border-top: 2px solid #c9c1b1;
-            line-height: 1.3;
-        }
-
-        .note-tl {
-            top: 16px;
-            left: 14px;
-            transform: rotate(-7deg);
-            max-width: 115px;
-        }
-
-        .note-tr {
-            top: 18px;
-            right: 14px;
-            transform: rotate(6deg);
-            background: #f2d06b;
-            border-top-color: #d9b650;
-            max-width: 110px;
-        }
-
-        .note-bl {
-            bottom: 16px;
-            left: 16px;
-            transform: rotate(5deg);
-            background: #1e1e24;
-            color: #d90429;
-            border: 1px solid #d90429;
-            max-width: 120px;
-        }
-
-        .note-br {
-            bottom: 18px;
-            right: 16px;
-            transform: rotate(-5deg);
-            max-width: 115px;
-        }
-
-        /* Alfinetes / Tachinhas Vermelhas 3D */
-        .pin {
-            position: absolute;
-            width: 13px;
-            height: 13px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 35% 35%, #ff5c77, #d90429 60%, #6e0012 100%);
-            box-shadow: 0 3px 5px rgba(0,0,0,0.85);
-            z-index: 5;
-        }
-
-        .pin::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 3px;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.65);
-        }
-
-        .pin-center {
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 15px;
-            height: 15px;
-        }
-
-        /* Foto Polaroid Centralizada do Alvo */
-        .polaroid-card {
+        /* Coluna Central: Polaroid Grande Inclinada */
+        .hero-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: relative;
-            z-index: 4;
-            background: #f4f1ea;
-            padding: 12px 12px 34px 12px;
-            width: 265px;
-            max-width: 78%;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(217, 4, 41, 0.4);
-            transform: rotate(-1.5deg);
-            transition: transform 0.3s ease;
         }
 
-        .polaroid-card:hover {
-            transform: rotate(0deg) scale(1.02);
+        .polaroid-frame {
+            position: relative;
+            background: #efeae0;
+            background-image: linear-gradient(145deg, #f5f1e8 0%, #e3ddd0 100%);
+            padding: 18px 18px 54px 18px;
+            width: 100%;
+            max-width: 390px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255,255,255,0.1);
+            transform: rotate(-5.5deg);
+            transition: transform 0.35s ease;
         }
 
-        /* Fita adesiva nos cantos da Polaroid */
-        .tape {
-            position: absolute;
-            width: 55px;
-            height: 16px;
-            background: rgba(235, 225, 200, 0.35);
-            backdrop-filter: blur(1px);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-            z-index: 6;
+        .polaroid-frame:hover {
+            transform: rotate(-2.5deg) scale(1.015);
         }
 
-        .tape-left {
-            top: -6px;
-            left: -14px;
-            transform: rotate(-32deg);
-        }
-
-        .tape-right {
-            bottom: 18px;
-            right: -16px;
-            transform: rotate(-28deg);
-        }
-
-        .polaroid-card img {
+        .polaroid-frame img {
             width: 100%;
             height: auto;
-            max-height: 295px;
-            object-fit: contain;
-            background: #0a0a0c;
+            max-height: 440px;
+            object-fit: cover;
+            object-position: top center;
             display: block;
-            border: 1px solid #ccc;
+            background: #0a0a0c;
+            border: 1px solid #c9c2b4;
         }
 
-        .polaroid-caption {
+        .polaroid-handwriting {
             position: absolute;
-            bottom: 6px;
+            bottom: 12px;
             left: 0;
             width: 100%;
             text-align: center;
             font-family: 'Permanent Marker', cursive;
+            font-size: 1.35rem;
+            color: #1f1c1c;
+            letter-spacing: 1.5px;
+        }
+
+        .polaroid-handwriting span {
+            color: #b8001f;
+        }
+
+        /* Coluna Direita: Notas de Papel Rasgado */
+        .hero-right {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            align-items: flex-end;
+            position: relative;
+        }
+
+        .torn-note {
+            position: relative;
+            background: #dfd7c6;
+            background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.3), transparent 70%);
+            color: #1d1b18;
+            font-family: 'Caveat', cursive;
+            font-weight: 700;
+            padding: 18px 20px;
+            width: 185px;
+            box-shadow: -6px 12px 26px rgba(0, 0, 0, 0.85);
+            clip-path: polygon(2% 0%, 98% 2%, 100% 97%, 92% 100%, 4% 98%, 0% 92%);
+        }
+
+        .note-1 {
+            transform: rotate(-5deg);
+            font-size: 1.55rem;
+            line-height: 1.05;
+            text-align: center;
+        }
+
+        .note-2 {
+            transform: rotate(3deg);
+            font-size: 1.32rem;
+            line-height: 1.45;
+            margin-right: 12px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .check-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border: 1.5px solid #2b2623;
             color: #b8001f;
             font-size: 0.95rem;
-            letter-spacing: 1px;
+            font-family: sans-serif;
         }
 
-        .target-ring {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: var(--lcdp-red);
-            color: #fff;
-            font-family: 'Oswald', sans-serif;
-            font-size: 0.65rem;
-            padding: 2px 7px;
-            letter-spacing: 1.5px;
-            transform: rotate(6deg);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.6);
-            z-index: 6;
+        .note-3 {
+            transform: rotate(-6deg);
+            font-size: 1.42rem;
+            line-height: 1.1;
+            text-align: center;
         }
 
-        /* ======================================================== */
-
-        p {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #d4d4dc;
-            margin-bottom: 20px;
-        }
-
-        .btn {
+        /* ========================================================
+           TELA 2 & 3: PAINEL DOS CADEADOS E MENSAGEM FINAL
+           ======================================================== */
+        .operation-card {
             width: 100%;
-            background: var(--lcdp-red);
+            max-width: 560px;
+            margin: 0 auto;
+            background: rgba(18, 18, 22, 0.96);
+            border: 1px solid #2e2e38;
+            border-top: 4px solid var(--lcdp-red-bright);
+            border-radius: 3px;
+            padding: 36px 30px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.92);
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--lcdp-red-bright);
             color: #fff;
-            border: none;
-            padding: 15px 20px;
             font-family: 'Oswald', sans-serif;
-            font-size: 1.1rem;
+            font-size: 0.78rem;
             letter-spacing: 2px;
+            padding: 3px 10px;
+            margin-bottom: 18px;
             text-transform: uppercase;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            border-radius: 2px;
         }
 
-        .btn:hover {
-            background: #b80322;
-        }
-
-        .btn:active {
-            transform: scale(0.99);
-        }
-
-        /* Cadeados */
         .locks-progress {
             display: flex;
             justify-content: space-between;
             gap: 10px;
-            margin-bottom: 25px;
+            margin-bottom: 26px;
         }
 
         .lock-pill {
             flex: 1;
             text-align: center;
-            padding: 8px 4px;
-            background: #1c1c22;
+            padding: 9px 4px;
+            background: #141418;
             border: 1px solid #2e2e38;
             font-size: 0.75rem;
-            color: var(--text-muted);
+            color: #8a8a93;
             border-radius: 2px;
             transition: all 0.3s;
         }
 
         .lock-pill.current {
-            border-color: var(--lcdp-red);
+            border-color: var(--lcdp-red-bright);
             color: #fff;
-            background: rgba(217, 4, 41, 0.12);
+            background: rgba(230, 0, 38, 0.14);
         }
 
         .lock-pill.unlocked {
@@ -396,7 +522,7 @@
 
         .lock-visual {
             text-align: center;
-            margin: 15px 0 20px 0;
+            margin: 12px 0 20px 0;
         }
 
         .lock-icon {
@@ -405,44 +531,68 @@
             margin-bottom: 8px;
         }
 
-        .hint-box {
-            background: rgba(255, 255, 255, 0.03);
-            border-left: 3px solid var(--lcdp-red);
-            padding: 12px 15px;
-            font-size: 0.85rem;
-            color: #bdbdc7;
-            margin-bottom: 20px;
+        .lock-visual h2 {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 1.5rem;
         }
 
-        .input-group {
-            margin-bottom: 15px;
+        .hint-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid var(--lcdp-red-bright);
+            padding: 12px 15px;
+            font-size: 0.88rem;
+            color: #c8c8d2;
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
 
         input[type="text"] {
             width: 100%;
-            background: #0b0b0e;
+            background: #09090b;
             border: 1px solid #3a3a45;
             color: #fff;
-            padding: 14px;
+            padding: 15px;
             font-family: 'Courier Prime', monospace;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             text-align: center;
             letter-spacing: 3px;
             text-transform: uppercase;
             outline: none;
+            margin-bottom: 12px;
             transition: border-color 0.2s;
         }
 
         input[type="text"]:focus {
-            border-color: var(--lcdp-red);
+            border-color: var(--lcdp-red-bright);
         }
 
         .error-msg {
             color: #ff4d6d;
-            font-size: 0.82rem;
+            font-size: 0.84rem;
             text-align: center;
             min-height: 20px;
             margin-bottom: 12px;
+        }
+
+        .btn-full {
+            width: 100%;
+            background: var(--lcdp-red-bright);
+            color: #fff;
+            border: none;
+            padding: 15px 20px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: background 0.2s;
+        }
+
+        .btn-full:hover {
+            background: #b80322;
         }
 
         .shake {
@@ -457,26 +607,6 @@
         }
 
         /* Mensagem Final */
-        .dossier-box {
-            background: #0d0d10;
-            border: 1px solid #2f2f38;
-            padding: 22px;
-            margin-top: 15px;
-            position: relative;
-        }
-
-        .dossier-box p {
-            color: #eaeaf0;
-            font-size: 0.96rem;
-            margin-bottom: 14px;
-        }
-
-        .dossier-box p:last-child {
-            margin-bottom: 0;
-            color: var(--lcdp-red);
-            font-weight: bold;
-        }
-
         .stamp {
             display: inline-block;
             border: 2px solid var(--success-green);
@@ -486,130 +616,211 @@
             font-size: 0.85rem;
             letter-spacing: 2px;
             transform: rotate(-2deg);
-            margin-bottom: 15px;
+            margin-bottom: 14px;
+        }
+
+        .dossier-box {
+            background: #0b0b0e;
+            border: 1px solid #2f2f38;
+            padding: 24px;
+            margin-top: 16px;
+        }
+
+        .dossier-box p {
+            color: #eaeaf0;
+            font-size: 0.96rem;
+            line-height: 1.65;
+            margin-bottom: 14px;
+        }
+
+        .dossier-box p:last-child {
+            margin-bottom: 0;
+            color: var(--lcdp-red-bright);
+            font-weight: bold;
+        }
+
+        /* ========================================================
+           RESPONSIVIDADE (CELULAR E TABLET)
+           ======================================================== */
+        @media (max-width: 980px) {
+            header.top-header {
+                padding: 18px 20px;
+            }
+            main.stage {
+                padding: 10px 20px 40px 20px;
+            }
+            .hero-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 32px;
+            }
+            .hero-left {
+                padding-left: 0;
+            }
+            .hero-subtitle {
+                margin: 0 auto 28px auto;
+            }
+            .polaroid-frame {
+                max-width: 320px;
+                transform: rotate(-2deg);
+            }
+            .hero-right {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                align-items: center;
+                gap: 14px;
+            }
+            .torn-note {
+                width: 155px;
+                padding: 12px 14px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <span><span class="status-dot"></span>CONEXÃO CRIPTOGRAFADA</span>
-        <span>CODINOME: ITÁLIA</span>
+    <!-- FUNDO DO QUADRO DE INVESTIGAÇÃO COM CORDÕES -->
+    <div class="board-backdrop">
+        <div class="artifact-map"></div>
+        <div class="artifact-building"></div>
+        <div class="artifact-fingerprint"><div class="fingerprint-ring"></div></div>
+        <div class="artifact-gang"></div>
+
+        <!-- Cordões vermelhos conectando todo o quadro -->
+        <svg class="global-strings" viewBox="0 0 1440 900" preserveAspectRatio="none">
+            <line x1="180" y1="160" x2="430" y2="95" class="rope" />
+            <line x1="430" y1="95" x2="775" y2="175" class="rope" />
+            <line x1="775" y1="175" x2="1050" y2="65" class="rope" />
+            <line x1="1050" y1="65" x2="1280" y2="155" class="rope" />
+            <line x1="1280" y1="155" x2="1260" y2="415" class="rope" />
+            <line x1="1260" y1="415" x2="1250" y2="710" class="rope" />
+            <line x1="775" y1="175" x2="540" y2="730" class="rope" />
+            <line x1="540" y1="730" x2="210" y2="760" class="rope" />
+            <line x1="430" y1="95" x2="540" y2="730" class="rope-thin" />
+            <line x1="775" y1="175" x2="1250" y2="710" class="rope-thin" />
+            <line x1="940" y1="680" x2="1250" y2="710" class="rope" />
+        </svg>
     </div>
 
-    <div class="container" id="main-card">
-        
-        <!-- TELA 1: BOAS-VINDAS COM QUADRO DE INVESTIGAÇÃO -->
-        <div id="screen-intro" class="screen active">
-            <span class="badge">Arquivo Confidencial // Acesso Restrito</span>
-            <h1>Bem-vinda <span class="highlight-red">Itália</span>, ou melhor dizendo, <span class="highlight-red">Bella</span>.</h1>
-            
-            <div class="evidence-board">
-                <!-- Cordões vermelhos conectando as evidências ao alvo -->
-                <svg class="red-strings-svg" viewBox="0 0 500 410" preserveAspectRatio="none">
-                    <!-- Linhas secundárias de fundo -->
-                    <line x1="65" y1="45" x2="435" y2="365" class="string-line-thin" />
-                    <line x1="435" y1="45" x2="65" y2="365" class="string-line-thin" />
-                    <!-- Cordões principais convergindo para o alfinete central da foto -->
-                    <line x1="65" y1="45" x2="250" y2="48" class="string-line" />
-                    <line x1="435" y1="45" x2="250" y2="48" class="string-line" />
-                    <line x1="65" y1="365" x2="250" y2="48" class="string-line" />
-                    <line x1="435" y1="365" x2="250" y2="48" class="string-line" />
-                    <!-- Cordões cruzando na base -->
-                    <line x1="65" y1="365" x2="360" y2="355" class="string-line" />
-                    <line x1="435" y1="45" x2="375" y2="210" class="string-line" />
-                </svg>
-
-                <!-- Notas e pistas nas extremidades -->
-                <div class="clue-note note-tl">
-                    <span class="pin" style="top:-6px; left:45%;"></span>
-                    DOSSIÊ #01<br>CODINOME:<br>ITÁLIA
-                </div>
-
-                <div class="clue-note note-tr">
-                    <span class="pin" style="top:-6px; left:45%;"></span>
-                    STATUS:<br>RECRUTADA<br>19 / NOV
-                </div>
-
-                <div class="clue-note note-bl">
-                    <span class="pin" style="top:-6px; left:45%;"></span>
-                    [ALVO SELECIONADO]
-                </div>
-
-                <div class="clue-note note-br">
-                    <span class="pin" style="top:-6px; left:45%;"></span>
-                    3 CADEADOS<br>AGUARDANDO<br>QUEBRA...
-                </div>
-
-                <!-- Foto central da Bella estilo Polaroid presa no quadro -->
-                <div class="polaroid-card">
-                    <div class="pin pin-center"></div>
-                    <div class="tape tape-left"></div>
-                    <div class="tape tape-right"></div>
-                    <div class="target-ring">ALVO PRINCIPAL</div>
-                    <img src="bella.png" alt="Codinome Itália" id="intro-image">
-                    <div class="polaroid-caption">BELLA // ITÁLIA</div>
-                </div>
-            </div>
-
-            <p>O plano já está em andamento. Para acessar as instruções da próxima fase, você precisará quebrar três camadas de segurança.</p>
-            
-            <button class="btn" onclick="startOperation()">Iniciar Operação</button>
+    <!-- CABEÇALHO SUPERIOR -->
+    <header class="top-header">
+        <div class="lcdp-logo">
+            LA CASA <span class="de-box">DE</span> PAPEL
         </div>
+        <div class="confidential-pill">
+            <span class="rec-dot"></span> CONFIDENCIAL
+        </div>
+    </header>
 
-        <!-- TELA 2: CADEADOS SEQUENCIAIS -->
-        <div id="screen-locks" class="screen">
-            <span class="badge">Protocolo de Segurança</span>
-            
-            <div class="locks-progress">
-                <div class="lock-pill current" id="pill-0">🔒 CADEADO 01</div>
-                <div class="lock-pill" id="pill-1">🔒 CADEADO 02</div>
-                <div class="lock-pill" id="pill-2">🔒 CADEADO 03</div>
+    <!-- PALCO PRINCIPAL -->
+    <main class="stage">
+
+        <!-- TELA 1: QUADRO DE BOAS-VINDAS -->
+        <section id="screen-intro" class="screen active">
+            <div class="hero-grid">
+                
+                <!-- Esquerda: Título e Botão -->
+                <div class="hero-left">
+                    <div class="classified-stamp">ARQUIVO CONFIDENCIAL // ACESSO RESTRITO</div>
+                    <h1 class="hero-title">
+                        BEM-VINDA <span class="red">ITÁLIA</span>,<br>
+                        OU MELHOR<br>
+                        DIZENDO, <span class="red">BELLA.</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        O plano já está em andamento. Para começar sua missão, analise as pistas, descubra os segredos e prepare-se para fazer parte dessa história.
+                    </p>
+                    <button class="btn-start" onclick="startOperation()">
+                        INICIAR OPERAÇÃO <span>→</span>
+                    </button>
+                </div>
+
+                <!-- Centro: Foto Polaroid da Bella -->
+                <div class="hero-center">
+                    <div class="polaroid-frame">
+                        <span class="pin-3d" style="top: 8px; left: 48%;"></span>
+                        <img src="bella.png" alt="Bella - Codinome Itália">
+                        <div class="polaroid-handwriting">BELLA // <span>ITÁLIA</span></div>
+                    </div>
+                </div>
+
+                <!-- Direita: Notas Rasgadas -->
+                <div class="hero-right">
+                    <div class="torn-note note-1">
+                        <span class="pin-3d" style="top: 6px; left: 46%; width: 12px; height: 12px;"></span>
+                        Equipe<br>em ação!
+                    </div>
+
+                    <div class="torn-note note-2">
+                        <span class="pin-3d" style="top: 6px; left: 46%; width: 12px; height: 12px;"></span>
+                        <div class="check-item"><span class="check-box">✓</span> Confiar</div>
+                        <div class="check-item"><span class="check-box">✓</span> Planejar</div>
+                        <div class="check-item"><span class="check-box">✓</span> Executar</div>
+                    </div>
+
+                    <div class="torn-note note-3">
+                        <span class="pin-3d" style="top: 6px; left: 46%; width: 12px; height: 12px;"></span>
+                        Juntos<br>somos mais<br>fortes.
+                    </div>
+                </div>
+
             </div>
+        </section>
 
-            <div class="lock-visual">
-                <div class="lock-icon" id="lock-emoji">🔐</div>
-                <h2 id="lock-title">Cadeado 01 de 03</h2>
-            </div>
+        <!-- TELA 2: OS 3 CADEADOS -->
+        <section id="screen-locks" class="screen">
+            <div class="operation-card" id="lock-card">
+                <span class="badge">Protocolo de Segurança</span>
+                
+                <div class="locks-progress">
+                    <div class="lock-pill current" id="pill-0">🔒 CADEADO 01</div>
+                    <div class="lock-pill" id="pill-1">🔒 CADEADO 02</div>
+                    <div class="lock-pill" id="pill-2">🔒 CADEADO 03</div>
+                </div>
 
-            <div class="hint-box" id="lock-hint">
-                Pista do sistema: Insira a primeira palavra-chave para liberar o acesso.
-            </div>
+                <div class="lock-visual">
+                    <div class="lock-icon">🔐</div>
+                    <h2 id="lock-title">Cadeado 01 de 03</h2>
+                </div>
 
-            <div class="input-group">
+                <div class="hint-box" id="lock-hint">
+                    Dica 01: Digite a primeira palavra-chave definida para a operação.
+                </div>
+
                 <input type="text" id="code-input" placeholder="DIGITE A PALAVRA-CHAVE" autocomplete="off">
+                <div class="error-msg" id="error-msg"></div>
+
+                <button class="btn-full" onclick="checkCode()">Desbloquear Cadeado</button>
             </div>
-
-            <div class="error-msg" id="error-msg"></div>
-
-            <button class="btn" onclick="checkCode()">Desbloquear Cadeado</button>
-        </div>
+        </section>
 
         <!-- TELA 3: MENSAGEM FINAL -->
-        <div id="screen-final" class="screen">
-            <div class="stamp">ACESSO TOTAL CONCEDIDO</div>
-            <h2>Transmissão Interceptada</h2>
+        <section id="screen-final" class="screen">
+            <div class="operation-card">
+                <div class="stamp">ACESSO TOTAL CONCEDIDO</div>
+                <h2 style="font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1.5px;">Transmissão Interceptada</h2>
 
-            <div class="dossier-box">
-                <p><strong>Bella...</strong></p>
-                <p>Os três cadeados foram abertos. Mas uma última conexão precisa ser estabelecida antes que a operação avance.</p>
-                <p>Seu próximo contato é uma figura de grande estatura, cuja gentileza costuma chegar em pequenas doses de açúcar. Sua presença, porém, é imprevisível: há quem diga que ele tem um talento peculiar para surgir justamente quando algo incomum acontece nos bastidores.</p>
-                <p>Ele ocupa uma posição estratégica e sabe mais do que aparenta.</p>
-                <p>Encontre-o. Ele saberá o que fazer.</p>
+                <div class="dossier-box">
+                    <p><strong>Bella...</strong></p>
+                    <p>Os três cadeados foram abertos. Mas uma última conexão precisa ser estabelecida antes que a operação avance.</p>
+                    <p>Seu próximo contato é uma figura de grande estatura, cuja gentileza costuma chegar em pequenas doses de açúcar. Sua presença, porém, é imprevisível: há quem diga que ele tem um talento peculiar para surgir justamente quando algo incomum acontece nos bastidores.</p>
+                    <p>Ele ocupa uma posição estratégica e sabe mais do que aparenta.</p>
+                    <p>Encontre-o. Ele saberá o que fazer.</p>
+                </div>
             </div>
-        </div>
+        </section>
 
-    </div>
+    </main>
 
     <script>
         // =====================================================================
-        // CONFIGURAÇÃO DA OPERAÇÃO (EDITE AQUI AS 3 PALAVRAS E AS PISTAS)
+        // CONFIGURAÇÃO DAS 3 SENHAS E PISTAS (EDITE AQUI QUANDO DEFINIR)
         // =====================================================================
         const LOCKS_CONFIG = [
             {
                 title: "Cadeado 01 de 03",
-                // Coloque a palavra-chave desejada (o sistema ignora maiúsculas/minúsculas e acentos)
-                password: "SENHA1", 
+                password: "SENHA1",
                 hint: "Dica 01: Digite a primeira palavra-chave definida para a operação."
             },
             {
@@ -627,7 +838,6 @@
 
         let currentLockIndex = 0;
 
-        // Normaliza texto (remove acentos, espaços extras e deixa tudo em maiúsculo)
         function normalizeText(text) {
             return text
                 .trim()
@@ -654,7 +864,7 @@
         function checkCode() {
             const inputEl = document.getElementById('code-input');
             const errorEl = document.getElementById('error-msg');
-            const cardEl = document.getElementById('main-card');
+            const cardEl = document.getElementById('lock-card');
             
             const userAttempt = normalizeText(inputEl.value);
             const expectedPassword = normalizeText(LOCKS_CONFIG[currentLockIndex].password);
@@ -666,7 +876,6 @@
             }
 
             if (userAttempt === expectedPassword) {
-                // Marca cadeado atual como desbloqueado
                 const currentPill = document.getElementById(`pill-${currentLockIndex}`);
                 currentPill.classList.remove('current');
                 currentPill.classList.add('unlocked');
@@ -675,12 +884,10 @@
                 currentLockIndex++;
 
                 if (currentLockIndex < LOCKS_CONFIG.length) {
-                    // Próximo cadeado
                     const nextPill = document.getElementById(`pill-${currentLockIndex}`);
                     nextPill.classList.add('current');
                     loadLock(currentLockIndex);
                 } else {
-                    // Todos abertos -> Vai para tela final
                     document.getElementById('screen-locks').classList.remove('active');
                     document.getElementById('screen-final').classList.add('active');
                 }
@@ -693,11 +900,10 @@
 
         function triggerShake(element) {
             element.classList.remove('shake');
-            void element.offsetWidth; // força reinício da animação
+            void element.offsetWidth;
             element.classList.add('shake');
         }
 
-        // Permite apertar "Enter" no teclado para enviar a senha
         document.getElementById('code-input').addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
                 checkCode();
