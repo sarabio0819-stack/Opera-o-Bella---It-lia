@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPERAÇÃO BELLA | Confidencial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0c;
+            --bg-panel: #141418;
+            --lcdp-red: #d90429;
+            --lcdp-red-dark: #8d021b;
+            --text-main: #f1f1f1;
+            --text-muted: #8a8a93;
+            --success-green: #2ec4b6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(217, 4, 41, 0.15) 0%, transparent 60%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            color: var(--text-main);
+            font-family: 'Courier Prime', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 12, 0.9);
+            border-bottom: 1px solid #26262c;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            z-index: 10;
+            letter-spacing: 1px;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--lcdp-red);
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: blink 1.2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 540px;
+            background: var(--bg-panel);
+            border: 1px solid #2a2a32;
+            border-top: 4px solid var(--lcdp-red);
+            border-radius: 4px;
+            padding: 35px 28px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+            position: relative;
+            margin-top: 30px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--lcdp-red);
+            color: #fff;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            padding: 3px 10px;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+        }
+
+        h1, h2 {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 1.85rem;
+            margin-bottom: 15px;
+        }
+
+        .highlight-red {
+            color: var(--lcdp-red);
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Imagem inicial */
+        .target-photo-wrapper {
+            width: 100%;
+            margin: 18px 0 22px 0;
+            border: 1px solid #333;
+            padding: 6px;
+            background: #0d0d10;
+            position: relative;
+        }
+
+        .target-photo-wrapper img {
+            width: 100%;
+            max-height: 340px;
+            object-fit: cover;
+            display: block;
+            filter: contrast(1.05);
+        }
+
+        .photo-caption {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #d4d4dc;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            width: 100%;
+            background: var(--lcdp-red);
+            color: #fff;
+            border: none;
+            padding: 15px 20px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            border-radius: 2px;
+        }
+
+        .btn:hover {
+            background: #b80322;
+        }
+
+        .btn:active {
+            transform: scale(0.99);
+        }
+
+        /* Cadeados */
+        .locks-progress {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .lock-pill {
+            flex: 1;
+            text-align: center;
+            padding: 8px 4px;
+            background: #1c1c22;
+            border: 1px solid #2e2e38;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .lock-pill.current {
+            border-color: var(--lcdp-red);
+            color: #fff;
+            background: rgba(217, 4, 41, 0.12);
+        }
+
+        .lock-pill.unlocked {
+            border-color: var(--success-green);
+            color: var(--success-green);
+            background: rgba(46, 196, 182, 0.1);
+        }
+
+        .lock-visual {
+            text-align: center;
+            margin: 15px 0 20px 0;
+        }
+
+        .lock-icon {
+            font-size: 3rem;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .hint-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid var(--lcdp-red);
+            padding: 12px 15px;
+            font-size: 0.85rem;
+            color: #bdbdc7;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background: #0b0b0e;
+            border: 1px solid #3a3a45;
+            color: #fff;
+            padding: 14px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.1rem;
+            text-align: center;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--lcdp-red);
+        }
+
+        .error-msg {
+            color: #ff4d6d;
+            font-size: 0.82rem;
+            text-align: center;
+            min-height: 20px;
+            margin-bottom: 12px;
+        }
+
+        .shake {
+            animation: shake 0.35s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        /* Mensagem Final */
+        .dossier-box {
+            background: #0d0d10;
+            border: 1px solid #2f2f38;
+            padding: 22px;
+            margin-top: 15px;
+            position: relative;
+        }
+
+        .dossier-box p {
+            color: #eaeaf0;
+            font-size: 0.96rem;
+            margin-bottom: 14px;
+        }
+
+        .dossier-box p:last-child {
+            margin-bottom: 0;
+            color: var(--lcdp-red);
+            font-weight: bold;
+        }
+
+        .stamp {
+            display: inline-block;
+            border: 2px solid var(--success-green);
+            color: var(--success-green);
+            font-family: 'Oswald', sans-serif;
+            padding: 4px 12px;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            transform: rotate(-2deg);
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <span><span class="status-dot"></span>CONEXÃO CRIPTOGRAFADA</span>
+        <span>CODINOME: ITÁLIA</span>
+    </div>
+
+    <div class="container" id="main-card">
+        
+        <!-- TELA 1: BOAS-VINDAS -->
+        <div id="screen-intro" class="screen active">
+            <span class="badge">Arquivo Confidencial // Acesso Restrito</span>
+            <h1>Bem-vinda <span class="highlight-red">Itália</span>, ou melhor dizendo, <span class="highlight-red">Bella</span>.</h1>
+            
+            <div class="target-photo-wrapper">
+                <!-- TROQUE O NOME DO ARQUIVO ABAIXO PELA SUA IMAGEM -->
+                <img src="bella.jpg" alt="Codinome Itália" id="intro-image">
+                <div class="photo-caption">ID: ALVO_PRIORITÁRIO // STATUS: ATIVO</div>
+            </div>
+
+            <p>O plano já está em andamento. Para acessar as instruções da próxima fase, você precisará quebrar três camadas de segurança.</p>
+            
+            <button class="btn" onclick="startOperation()">Iniciar Operação</button>
+        </div>
+
+        <!-- TELA 2: CADEADOS SEQUENCIAIS -->
+        <div id="screen-locks" class="screen">
+            <span class="badge">Protocolo de Segurança</span>
+            
+            <div class="locks-progress">
+                <div class="lock-pill current" id="pill-0">🔒 CADEADO 01</div>
+                <div class="lock-pill" id="pill-1">🔒 CADEADO 02</div>
+                <div class="lock-pill" id="pill-2">🔒 CADEADO 03</div>
+            </div>
+
+            <div class="lock-visual">
+                <div class="lock-icon" id="lock-emoji">🔐</div>
+                <h2 id="lock-title">Cadeado 01 de 03</h2>
+            </div>
+
+            <div class="hint-box" id="lock-hint">
+                Pista do sistema: Insira a primeira palavra-chave para liberar o acesso.
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="code-input" placeholder="DIGITE A PALAVRA-CHAVE" autocomplete="off">
+            </div>
+
+            <div class="error-msg" id="error-msg"></div>
+
+            <button class="btn" onclick="checkCode()">Desbloquear Cadeado</button>
+        </div>
+
+        <!-- TELA 3: MENSAGEM FINAL -->
+        <div id="screen-final" class="screen">
+            <div class="stamp">ACESSO TOTAL CONCEDIDO</div>
+            <h2>Transmissão Interceptada</h2>
+
+            <div class="dossier-box">
+                <p><strong>Bella...</strong></p>
+                <p>Os três cadeados foram abertos. Mas uma última conexão precisa ser estabelecida antes que a operação avance.</p>
+                <p>Seu próximo contato é uma figura de grande estatura, cuja gentileza costuma chegar em pequenas doses de açúcar. Sua presença, porém, é imprevisível: há quem diga que ele tem um talento peculiar para surgir justamente quando algo incomum acontece nos bastidores.</p>
+                <p>Ele ocupa uma posição estratégica e sabe mais do que aparenta.</p>
+                <p>Encontre-o. Ele saberá o que fazer.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // =====================================================================
+        // CONFIGURAÇÃO DA OPERAÇÃO (EDITE AQUI AS 3 PALAVRAS E AS PISTAS)
+        // =====================================================================
+        const LOCKS_CONFIG = [
+            {
+                title: "Cadeado 01 de 03",
+                // Coloque a palavra-chave desejada (o sistema ignora maiúsculas/minúsculas e acentos)
+                password: "SENHA1", 
+                hint: "Dica 01: Digite a primeira palavra-chave definida para a operação."
+            },
+            {
+                title: "Cadeado 02 de 03",
+                password: "SENHA2",
+                hint: "Dica 02: Digite a segunda palavra-chave para avançar."
+            },
+            {
+                title: "Cadeado 03 de 03",
+                password: "SENHA3",
+                hint: "Dica 03: Última camada de proteção. Insira a palavra final."
+            }
+        ];
+        // =====================================================================
+
+        let currentLockIndex = 0;
+
+        // Normaliza texto (remove acentos, espaços extras e deixa tudo em maiúsculo)
+        function normalizeText(text) {
+            return text
+                .trim()
+                .toUpperCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
+        }
+
+        function startOperation() {
+            document.getElementById('screen-intro').classList.remove('active');
+            document.getElementById('screen-locks').classList.add('active');
+            loadLock(0);
+        }
+
+        function loadLock(index) {
+            const lock = LOCKS_CONFIG[index];
+            document.getElementById('lock-title').innerText = lock.title;
+            document.getElementById('lock-hint').innerText = lock.hint;
+            document.getElementById('code-input').value = '';
+            document.getElementById('error-msg').innerText = '';
+            document.getElementById('code-input').focus();
+        }
+
+        function checkCode() {
+            const inputEl = document.getElementById('code-input');
+            const errorEl = document.getElementById('error-msg');
+            const cardEl = document.getElementById('main-card');
+            
+            const userAttempt = normalizeText(inputEl.value);
+            const expectedPassword = normalizeText(LOCKS_CONFIG[currentLockIndex].password);
+
+            if (!userAttempt) {
+                errorEl.innerText = "ACESSO NEGADO: CAMPO VAZIO.";
+                triggerShake(cardEl);
+                return;
+            }
+
+            if (userAttempt === expectedPassword) {
+                // Marca cadeado atual como desbloqueado
+                const currentPill = document.getElementById(`pill-${currentLockIndex}`);
+                currentPill.classList.remove('current');
+                currentPill.classList.add('unlocked');
+                currentPill.innerText = `🔓 CADEADO 0${currentLockIndex + 1}`;
+
+                currentLockIndex++;
+
+                if (currentLockIndex < LOCKS_CONFIG.length) {
+                    // Próximo cadeado
+                    const nextPill = document.getElementById(`pill-${currentLockIndex}`);
+                    nextPill.classList.add('current');
+                    loadLock(currentLockIndex);
+                } else {
+                    // Todos abertos -> Vai para tela final
+                    document.getElementById('screen-locks').classList.remove('active');
+                    document.getElementById('screen-final').classList.add('active');
+                }
+            } else {
+                errorEl.innerText = "CÓDIGO INCORRETO. TENTE NOVAMENTE.";
+                inputEl.value = '';
+                triggerShake(cardEl);
+            }
+        }
+
+        function triggerShake(element) {
+            element.classList.remove('shake');
+            void element.offsetWidth; // força reinício da animação
+            element.classList.add('shake');
+        }
+
+        // Permite apertar "Enter" no teclado para enviar a senha
+        document.getElementById('code-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                checkCode();
+            }
+        });
+    </script>
+</body>
+</html>
